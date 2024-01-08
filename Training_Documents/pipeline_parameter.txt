@@ -1,0 +1,35 @@
+pipeline {
+    
+    parameters {
+	
+	string(defaultValue: "GIT URL", description: 'Provide the GIT SCM', name: 'git')
+	string(defaultValue: "mvn clean install", description: 'Provide the maven command', name: 'maven')
+	choice(choices: "master\nslave-tomcat", description: 'Provide the to node', name: 'node')
+	}
+	
+    agent {
+        node ("${params.node}")
+    }
+
+    stages {
+        stage('GIT') {
+            steps {
+                checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: "${params.git}"]])
+            }
+        }
+        stage('Build')
+        {
+            steps {
+            withMaven(globalMavenSettingsConfig: '', jdk: '', maven: 'maven', mavenSettingsConfig: '', traceability: true) {
+                sh "${params.maven}"
+            }
+            }
+        }
+        stage('Publish')
+        {
+            steps {
+            sshPublisher(publishers: [sshPublisherDesc(configName: 'Tomcat', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: '', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '', remoteDirectorySDF: false, removePrefix: 'target/', sourceFiles: '**/*.war')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
+        }
+        }
+    }
+}

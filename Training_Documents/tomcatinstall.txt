@@ -1,0 +1,97 @@
+sudo useradd -m -d /opt/tomcat -U -s /bin/false tomcat
+
+sudo apt update
+
+cd /tmp
+
+wget https://dlcdn.apache.org/tomcat/tomcat-10/v10.0.20/bin/apache-tomcat-10.0.20.tar.gz
+
+sudo tar xzvf apache-tomcat-10*tar.gz -C /opt/tomcat --strip-components=1
+
+sudo chown -R tomcat:tomcat /opt/tomcat/
+
+sudo chmod -R u+x /opt/tomcat/bin
+
+sudo nano /opt/tomcat/conf/tomcat-users.xml
+
+Add the following lines before the ending tag:
+
+<role rolename="manager-gui" />
+<user username="manager" password="manager_password" roles="manager-gui" />
+
+<role rolename="admin-gui" />
+<user username="admin" password="admin_password" roles="manager-gui,admin-gui" />
+
+sudo nano /opt/tomcat/webapps/manager/META-INF/context.xml
+
+Comment out the Valve definition, as shown:
+
+...
+<Context antiResourceLocking="false" privileged="true" >
+  <CookieProcessor className="org.apache.tomcat.util.http.Rfc6265CookieProcessor"
+                   sameSiteCookies="strict" />
+<!--  <Valve className="org.apache.catalina.valves.RemoteAddrValve"
+         allow="127\.\d+\.\d+\.\d+|::1|0:0:0:0:0:0:0:1" /> -->
+  <Manager sessionAttributeValueClassNameFilter="java\.lang\.(?:Boolean|Integer|Long|Number|String)|org\.apache\.catalina\.filters\.Csr>
+</Context>
+
+sudo update-java-alternatives -l
+
+The output will be similar to this:
+
+Output
+java-1.11.0-openjdk-amd64      1111       /usr/lib/jvm/java-1.11.0-openjdk-amd64
+
+sudo nano /etc/systemd/system/tomcat.service
+
+[Unit]
+Description=Tomcat
+After=network.target
+
+[Service]
+Type=forking
+
+User=tomcat
+Group=tomcat
+
+Environment="JAVA_HOME=/usr/lib/jvm/java-1.11.0-openjdk-amd64"
+Environment="JAVA_OPTS=-Djava.security.egd=file:///dev/urandom"
+Environment="CATALINA_BASE=/opt/tomcat"
+Environment="CATALINA_HOME=/opt/tomcat"
+Environment="CATALINA_PID=/opt/tomcat/temp/tomcat.pid"
+Environment="CATALINA_OPTS=-Xms512M -Xmx1024M -server -XX:+UseParallelGC"
+
+ExecStart=/opt/tomcat/bin/startup.sh
+ExecStop=/opt/tomcat/bin/shutdown.sh
+
+RestartSec=10
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
+sudo systemctl daemon-reload
+
+sudo systemctl start tomcat
+
+sudo systemctl status tomcat
+
+The output will look like this:
+
+Output
+● tomcat.service - Tomcat
+     Loaded: loaded (/etc/systemd/system/tomcat.service; disabled; vendor preset: enabled)
+     Active: active (running) since Fri 2022-03-11 14:37:10 UTC; 2s ago
+    Process: 4845 ExecStart=/opt/tomcat/bin/startup.sh (code=exited, status=0/SUCCESS)
+   Main PID: 4860 (java)
+      Tasks: 15 (limit: 1132)
+     Memory: 90.1M
+     CGroup: /system.slice/tomcat.service
+             └─4860 /usr/lib/jvm/java-1.11.0-openjdk-amd64/bin/java -Djava.util.logging.config.file=/opt/tomcat/conf/logging.properties ...
+			 
+
+sudo systemctl enable tomcat
+
+you can now access Tomcat by navigating to the IP address of your server:
+
+http://your_server_ip:8080
