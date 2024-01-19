@@ -1,0 +1,51 @@
+kubectl apply − It has the capability to configure a resource by file or stdin.
+
+$ kubectl apply –f <filename>
+
+kubectl cluster-info − It displays the cluster Info.
+
+$ kubectl cluster-info
+
+kubectl create − To create resource by filename of or stdin. To do this, JSON or YAML formats are accepted.
+
+$ kubectl create –f <File Name>
+
+kubectl delete − Deletes resources by file name, stdin, resource and names.
+
+$ kubectl delete –f ([-f FILENAME] | TYPE [(NAME | -l label | --all)])
+
+kubectl describe − Describes any particular resource in kubernetes. Shows details of resource or a group of resources.
+
+$ kubectl describe <type> <type name>
+$ kubectl describe pod tomcat
+
+kubectl edit − It is used to end the resources on the server. This allows to directly edit a resource which one can receive via the command line tool.
+
+$ kubectl edit <Resource/Name | File Name)
+Ex.
+$ kubectl edit rc/tomcat
+
+kubectl exec − This helps to execute a command in the container.
+
+$ kubectl exec POD <-c CONTAINER > -- COMMAND < args...>
+$ kubectl exec tomcat 123-5-456 date
+
+kubectl get − This command is capable of fetching data on the cluster about the Kubernetes resources.
+
+$ kubectl get [(-o|--output=)json|yaml|wide|custom-columns=...|custom-columnsfile=...|
+go-template=...|go-template-file=...|jsonpath=...|jsonpath-file=...]
+(TYPE [NAME | -l label] | TYPE/NAME ...) [flags]
+For example,
+
+$ kubectl get pod <pod name>
+$ kubectl get service <Service name>
+$ kubectl get nodes
+$ kubectl get pods -n <NAMESPACE>
+$ kubectl get ns  # To list the namespaces
+
+kubectl logs − They are used to get the logs of the container in a pod. Printing the logs can be defining the container name in the pod. If the POD has only one container there is no need to define its name.
+
+$ kubectl logs [-f] [-p] POD [-c CONTAINER]
+Example
+$ kubectl logs tomcat.
+$ kubectl logs –p –c tomcat.8

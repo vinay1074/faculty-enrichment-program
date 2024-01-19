@@ -1,0 +1,4 @@
+https://www.youtube.com/watch?v=02Yx8pISQSQ --> EKS Setup using EKSCTL
+https://www.youtube.com/watch?v=tatPFzitHa0 --> Kubernetes deployment demo
+https://www.youtube.com/watch?v=ew6Jtrn5rLo --> How to install and configure ansible
+https://www.youtube.com/watch?v=cqbh-RneBlk --> How to install docker
